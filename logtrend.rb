@@ -15,6 +15,9 @@ class LogTrend
   def start(logfile)
     begin
       EventMachine.run do
+        
+        EventMachine::add_periodic_timer(5) {puts 'ping'}
+        
         EventMachine::file_tail(logfile) do |filetail, line|
           puts line
         end
