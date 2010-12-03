@@ -20,14 +20,28 @@ class LogTrend
     counters
   end
   
+  def update_rrd(name, value)
+    file_name = "#{name}.rrd"
+    rrd = RRD::Base.new(file_name)
+    if !File.exists?(file_name)
+      rrd.create :start => Time.now - 10.seconds, :step => 1.minutes do
+        datasource "#{name}_count", :type => :gauge, :heartbeat => 5.minutes, :min => 0, :max => :unlimited
+        archive :average, :every => 5.minutes, :during => 1.year
+      end
+    end
+    rrd.update Time.now, value
+  end
+  
   def start(logfile)
     begin 
       counters = reset_counters
       
-      EventMachine.run do
-        
+      EventMachine.run do       
         EventMachine::add_periodic_timer(1) do
           puts counters.inspect
+          counters.each do |name, value|
+            update_rrd(name, value)
+          end
         end
         
         EventMachine::file_tail(logfile) do |filetail, line|
