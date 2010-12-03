@@ -16,4 +16,4 @@ l.graphs = {
   }
 }
 
-l.start('/var/log/remote/lb.log')
+l.start('/var/log/windowserver.log')
