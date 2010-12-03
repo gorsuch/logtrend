@@ -32,16 +32,24 @@ class LogTrend
     rrd.update Time.now, value
   end
   
+  def build_graph(name, data)
+    RRD.graph "#{name}.png", :title => name, :width => 800, :height => 250, :color => ["FONT#000000", "BACK#FFFFFF"] do
+      data.each do |name, color|
+        area "#{name}.rrd", "#{name}_count" => :average, :color => color, :label => name.to_s
+      end
+    end
+  end
+  
   def start(logfile)
     begin 
       counters = reset_counters
       
       EventMachine.run do       
-        EventMachine::add_periodic_timer(1) do
+        EventMachine::add_periodic_timer(60) do
           puts counters.inspect
-          counters.each do |name, value|
-            update_rrd(name, value)
-          end
+          counters.each {|name, value| update_rrd(name, value)}            
+          graphs.each {|name, data| build_graph(name, data)}
+          counters = reset_counters
         end
         
         EventMachine::file_tail(logfile) do |filetail, line|

@@ -10,8 +10,8 @@ l.trends = {
 }
 
 l.graphs = {
-  "requests per minute" => {
-    :fbod => '#0066cc',
+  "requests_per_minute" => {
+    :total => '#0066cc',
     :kod => '#993333'
   }
 }
