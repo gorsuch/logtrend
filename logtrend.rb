@@ -12,14 +12,28 @@ class LogTrend
     graphs = {}
   end
   
+  def reset_counters
+    counters = {}
+    trends.keys.each do |k|
+      counters[k] = 0
+    end
+    counters
+  end
+  
   def start(logfile)
-    begin
+    begin 
+      counters = reset_counters
+      
       EventMachine.run do
         
-        EventMachine::add_periodic_timer(5) {puts 'ping'}
+        EventMachine::add_periodic_timer(1) do
+          puts counters.inspect
+        end
         
         EventMachine::file_tail(logfile) do |filetail, line|
-          puts line
+          trends.each do |name, regex|
+            counters[name] += 1 if line.match(regex)
+          end
         end
       end
     rescue Interrupt

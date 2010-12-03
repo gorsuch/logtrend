@@ -16,4 +16,4 @@ l.graphs = {
   }
 }
 
-l.start('/var/log/windowserver.log')
+l.start('test.log')
