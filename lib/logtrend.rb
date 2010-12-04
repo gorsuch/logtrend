@@ -6,8 +6,11 @@ require 'logger'
 
 class LogTrend
   attr_accessor :graphs
+  attr_accessor :graphs_dir, :rrd_dir
   
   def initialize
+    @graphs_dir = '.'
+    @rrd_dir = '.'
     @trends = {}
     @graphs = []
     @logger = Logger.new(STDERR)
@@ -22,8 +25,8 @@ class LogTrend
     counters
   end
   
-  def update_rrd(rrd_dir,name, value)
-    file_name = File.join(rrd_dir,"#{name}.rrd")
+  def update_rrd(name, value)
+    file_name = File.join(@rrd_dir,"#{name}.rrd")
     rrd = RRD::Base.new(file_name)
     if !File.exists?(file_name)
       rrd.create :start => Time.now - 10.seconds, :step => 1.minutes do
@@ -34,8 +37,9 @@ class LogTrend
     rrd.update Time.now, value
   end
   
-  def build_graph(graphs_dir, rrd_dir, graph)
-    RRD.graph File.join(graphs_dir,"#{graph.name}.png"), :title => graph.name, :width => 800, :height => 250, :color => ["FONT#000000", "BACK#FFFFFF"] do
+  def build_graph(graph)
+    rrd_dir = @rrd_dir
+    RRD.graph File.join(@graphs_dir,"#{graph.name}.png"), :title => graph.name, :width => 800, :height => 250, :color => ["FONT#000000", "BACK#FFFFFF"] do
       graph.points.each do |point|
         if point.style == :line
           line File.join(rrd_dir,"#{point.name}.rrd"), "#{point.name}_count" => :average, :color => point.color, :label => point.name.to_s
@@ -46,17 +50,15 @@ class LogTrend
     end
   end
   
-  def start(logfile,rrd_dir,graphs_dir)
+  def start(logfile)
     begin
-      rrd_dir = rrd_dir
-      graphs_dir = graphs_dir      
       counters = reset_counters
       
       EventMachine.run do       
         EventMachine::add_periodic_timer(1.minute) do
           @logger.debug "#{Time.now} #{counters.inspect}"
-          counters.each {|name, value| update_rrd(rrd_dir,name, value)}            
-          @graphs.each {|graph| build_graph(graphs_dir, rrd_dir, graph)}
+          counters.each {|name, value| update_rrd(name, value)}            
+          @graphs.each {|graph| build_graph(graph)}
           counters = reset_counters
         end
         
@@ -84,10 +86,10 @@ class LogTrend
     @graphs << graph
   end
   
-  def self.start(logfile, rrd_dir, graphs_dir, &block)
+  def self.start(logfile, &block)
     l = LogTrend.new
     yield l if block
-    l.start logfile, rrd_dir, graphs_dir
+    l.start logfile
   end
 end
 

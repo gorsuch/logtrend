@@ -8,7 +8,10 @@ FileUtils.touch('test.log')
 Dir.mkdir('/tmp/rrd') if !File.exists?('/tmp/rrd')
 Dir.mkdir('/tmp/graphs') if !File.exists?('/tmp/graphs')
 
-LogTrend.start('test.log', "/tmp/rrd", "/tmp/graphs") do |l|
+LogTrend.start("test.log") do |l|
+  
+  l.rrd_dir = '/tmp/rrd'
+  l.graphs_dir = '/tmp/graphs'
   
   l.add_trend(:total) {|line| line.match /.*/}
   l.add_trend(:fbod) {|line| line.match /fogbugz.com/}
