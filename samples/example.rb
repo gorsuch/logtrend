@@ -8,7 +8,7 @@ FileUtils.touch('test.log')
 Dir.mkdir('/tmp/rrd') if !File.exists?('/tmp/rrd')
 Dir.mkdir('/tmp/graphs') if !File.exists?('/tmp/graphs')
 
-LogTrend.start("test.log") do |l|
+LogTrend::Base.run("test.log") do |l|
   
   # set new locations for our graphs and rrds.  defaults to '.'
   l.rrd_dir = '/tmp/rrd'
