@@ -9,7 +9,7 @@ class LogTrend
   
   def initialize
     @trends = {}
-    @graphs = {}
+    @graphs = []
     @logger = Logger.new(STDERR)
     @logger.level = ($DEBUG and Logger::DEBUG or Logger::WARN)
   end
@@ -34,10 +34,10 @@ class LogTrend
     rrd.update Time.now, value
   end
   
-  def build_graph(graphs_dir, rrd_dir, name, data)
-    RRD.graph File.join(graphs_dir,"#{name}.png"), :title => name, :width => 800, :height => 250, :color => ["FONT#000000", "BACK#FFFFFF"] do
-      data.each do |name, color|
-        line File.join(rrd_dir,"#{name}.rrd"), "#{name}_count" => :average, :color => color, :label => name.to_s
+  def build_graph(graphs_dir, rrd_dir, graph)
+    RRD.graph File.join(graphs_dir,"#{graph.name}.png"), :title => graph.name, :width => 800, :height => 250, :color => ["FONT#000000", "BACK#FFFFFF"] do
+      graph.points.each do |point|
+        line File.join(rrd_dir,"#{point[:name]}.rrd"), "#{point[:name]}_count" => :average, :color => point[:color], :label => point[:name].to_s
       end
     end
   end
@@ -52,7 +52,7 @@ class LogTrend
         EventMachine::add_periodic_timer(1.minute) do
           @logger.debug "#{Time.now} #{counters.inspect}"
           counters.each {|name, value| update_rrd(rrd_dir,name, value)}            
-          graphs.each {|name, data| build_graph(graphs_dir, rrd_dir, name, data)}
+          @graphs.each {|graph| build_graph(graphs_dir, rrd_dir, graph)}
           counters = reset_counters
         end
         
@@ -73,9 +73,31 @@ class LogTrend
     @trends[name] = block
   end
   
+  def add_graph(name, &block)
+    throw "D'oh! No block." unless block_given?
+    graph = Graph.new(name)
+    yield graph
+    @graphs << graph
+  end
+  
   def self.start(logfile, rrd_dir, graphs_dir, &block)
     l = LogTrend.new
     yield l if block
     l.start logfile, rrd_dir, graphs_dir
+  end
+end
+
+class Graph
+  
+  attr_reader :points
+  attr_reader :name
+  
+  def initialize(name)
+    @name = name
+    @points = []
+  end
+  
+  def add_line(name,color)
+    @points << {:name => name, :color => color}      
   end
 end
