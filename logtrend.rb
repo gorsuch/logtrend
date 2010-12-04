@@ -2,6 +2,7 @@ require 'rubygems'
 require 'eventmachine'
 require 'eventmachine-tail'
 require 'rrd'
+require 'logger'
 
 class LogTrend
   attr_accessor :trends
@@ -10,6 +11,8 @@ class LogTrend
   def initialize
     trends = {}
     graphs = {}
+    @logger = Logger.new(STDERR)
+    @logger.level = ($DEBUG and Logger::DEBUG or Logger::WARN)
   end
   
   def reset_counters
@@ -45,8 +48,8 @@ class LogTrend
       counters = reset_counters
       
       EventMachine.run do       
-        EventMachine::add_periodic_timer(60) do
-          puts "#{Time.now} #{counters.inspect}"
+        EventMachine::add_periodic_timer(1.minute) do
+          @logger.debug "#{Time.now} #{counters.inspect}"
           counters.each {|name, value| update_rrd(name, value)}            
           graphs.each {|name, data| build_graph(name, data)}
           counters = reset_counters
