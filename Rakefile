@@ -12,3 +12,7 @@ task :publish do
   latest_gem = %x{ls -t logtrend*.gem}.split("\n").first
   system("gem push #{latest_gem}")
 end
+
+task :clean do
+  system("rm -f *.gem")
+end
