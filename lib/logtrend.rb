@@ -83,8 +83,9 @@ module LogTrend
     end
   
     def self.run(logfile, &block)
+      throw "D'oh! No block." unless block_given?
       l = Base.new
-      yield l if block
+      yield l
       l.run logfile
     end
   end
