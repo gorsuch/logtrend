@@ -1,0 +1,5 @@
+LogTrend is an event-driven HTTP log parser built on top of EventMachine.  It looks for patterns per your definition, and generates RRD graphs every minute.
+
+There is a lot of room for improvement, but it works so far.
+
+See the 'samples' folder for more info.
