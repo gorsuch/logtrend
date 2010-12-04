@@ -5,7 +5,6 @@ require 'rrd'
 require 'logger'
 
 class LogTrend
-  attr_accessor :graphs
   attr_accessor :graphs_dir, :rrd_dir
   
   def initialize
@@ -51,27 +50,23 @@ class LogTrend
   end
   
   def start(logfile)
-    begin
-      counters = reset_counters
-      
-      EventMachine.run do       
-        EventMachine::add_periodic_timer(1.minute) do
-          @logger.debug "#{Time.now} #{counters.inspect}"
-          counters.each {|name, value| update_rrd(name, value)}            
-          @graphs.each {|graph| build_graph(graph)}
-          counters = reset_counters
-        end
-        
-        EventMachine::file_tail(logfile) do |filetail, line|
-          @trends.each do |name, block|
-            counters[name] += 1 if block.call(line)
-          end
-          @logger.debug counters.inspect
-        end
+    counters = reset_counters
+    
+    EventMachine.run do       
+      EventMachine::add_periodic_timer(1.minute) do
+        @logger.debug "#{Time.now} #{counters.inspect}"
+        counters.each {|name, value| update_rrd(name, value)}            
+        @graphs.each {|graph| build_graph(graph)}
+        counters = reset_counters
       end
-    rescue Interrupt
-      # hit ctrl-c
-    end    
+      
+      EventMachine::file_tail(logfile) do |filetail, line|
+        @trends.each do |name, block|
+          counters[name] += 1 if block.call(line)
+        end
+        @logger.debug counters.inspect
+      end
+    end
   end
   
   def add_trend(name, &block)
