@@ -23,8 +23,8 @@ class LogTrend
     counters
   end
   
-  def update_rrd(name, value)
-    file_name = "#{name}.rrd"
+  def update_rrd(rrd_dir,name, value)
+    file_name = File.join(rrd_dir,"#{name}.rrd")
     rrd = RRD::Base.new(file_name)
     if !File.exists?(file_name)
       rrd.create :start => Time.now - 10.seconds, :step => 1.minutes do
@@ -35,23 +35,25 @@ class LogTrend
     rrd.update Time.now, value
   end
   
-  def build_graph(name, data)
-    RRD.graph "#{name}.png", :title => name, :width => 800, :height => 250, :color => ["FONT#000000", "BACK#FFFFFF"] do
+  def build_graph(graphs_dir, rrd_dir, name, data)
+    RRD.graph File.join(graphs_dir,"#{name}.png"), :title => name, :width => 800, :height => 250, :color => ["FONT#000000", "BACK#FFFFFF"] do
       data.each do |name, color|
-        area "#{name}.rrd", "#{name}_count" => :average, :color => color, :label => name.to_s
+        area File.join(rrd_dir,"#{name}.rrd"), "#{name}_count" => :average, :color => color, :label => name.to_s
       end
     end
   end
   
-  def start(logfile)
-    begin      
+  def start(logfile,rrd_dir,graphs_dir)
+    begin
+      rrd_dir = rrd_dir
+      graphs_dir = graphs_dir      
       counters = reset_counters
       
       EventMachine.run do       
         EventMachine::add_periodic_timer(1.minute) do
           @logger.debug "#{Time.now} #{counters.inspect}"
-          counters.each {|name, value| update_rrd(name, value)}            
-          graphs.each {|name, data| build_graph(name, data)}
+          counters.each {|name, value| update_rrd(rrd_dir,name, value)}            
+          graphs.each {|name, data| build_graph(graphs_dir, rrd_dir, name, data)}
           counters = reset_counters
         end
         
@@ -66,9 +68,9 @@ class LogTrend
     end    
   end
   
-  def self.start(logfile, &block)
+  def self.start(logfile, rrd_dir, graphs_dir, &block)
     l = LogTrend.new
     yield l if block
-    l.start(logfile)
+    l.start logfile, rrd_dir, graphs_dir
   end
 end
