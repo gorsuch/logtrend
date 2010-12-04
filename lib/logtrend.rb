@@ -5,19 +5,18 @@ require 'rrd'
 require 'logger'
 
 class LogTrend
-  attr_accessor :trends
   attr_accessor :graphs
   
   def initialize
-    trends = {}
-    graphs = {}
+    @trends = {}
+    @graphs = {}
     @logger = Logger.new(STDERR)
     @logger.level = ($DEBUG and Logger::DEBUG or Logger::WARN)
   end
   
   def reset_counters
     counters = {}
-    trends.keys.each do |k|
+    @trends.keys.each do |k|
       counters[k] = 0
     end
     counters
@@ -58,14 +57,20 @@ class LogTrend
         end
         
         EventMachine::file_tail(logfile) do |filetail, line|
-          trends.each do |name, regex|
-            counters[name] += 1 if line.match(regex)
+          @trends.each do |name, block|
+            counters[name] += 1 if block.call(line)
           end
+          @logger.debug counters.inspect
         end
       end
     rescue Interrupt
       # hit ctrl-c
     end    
+  end
+  
+  def add_trend(name, &block)
+    throw "D'oh! No block." unless block_given?
+    @trends[name] = block
   end
   
   def self.start(logfile, rrd_dir, graphs_dir, &block)

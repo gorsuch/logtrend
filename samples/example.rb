@@ -9,11 +9,10 @@ Dir.mkdir('/tmp/rrd') if !File.exists?('/tmp/rrd')
 Dir.mkdir('/tmp/graphs') if !File.exists?('/tmp/graphs')
 
 LogTrend.start('test.log', "/tmp/rrd", "/tmp/graphs") do |l|
-  l.trends = {
-    :total => /.*/,
-    :fbod => /fogbugz.com/,
-    :kod => /kilnhg.com/
-  }
+  
+  l.add_trend(:total) {|line| line.match /.*/}
+  l.add_trend(:fbod) {|line| line.match /fogbugz.com/}
+  l.add_trend(:kod) {|line| line.match /kilnhg.com/}
   
   l.graphs = {
     "requests_per_minute" => {
