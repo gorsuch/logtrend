@@ -17,7 +17,7 @@ LogTrend.start('test.log', "/tmp/rrd", "/tmp/graphs") do |l|
   
   l.graphs = {
     "requests_per_minute" => {
-      :total => '#0066cc',
+      :fbod => '#0066cc',
       :kod => '#993333'
     }
   }
