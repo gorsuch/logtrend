@@ -37,7 +37,11 @@ class LogTrend
   def build_graph(graphs_dir, rrd_dir, graph)
     RRD.graph File.join(graphs_dir,"#{graph.name}.png"), :title => graph.name, :width => 800, :height => 250, :color => ["FONT#000000", "BACK#FFFFFF"] do
       graph.points.each do |point|
-        line File.join(rrd_dir,"#{point[:name]}.rrd"), "#{point[:name]}_count" => :average, :color => point[:color], :label => point[:name].to_s
+        if point[:style] == :line
+          line File.join(rrd_dir,"#{point[:name]}.rrd"), "#{point[:name]}_count" => :average, :color => point[:color], :label => point[:name].to_s
+        elsif point[:style] == :area
+          area File.join(rrd_dir,"#{point[:name]}.rrd"), "#{point[:name]}_count" => :average, :color => point[:color], :label => point[:name].to_s         
+        end
       end
     end
   end
@@ -97,7 +101,7 @@ class Graph
     @points = []
   end
   
-  def add_line(name,color)
-    @points << {:name => name, :color => color}      
+  def add_point(style,name,color)
+    @points << {:style => style, :name => name, :color => color}      
   end
 end

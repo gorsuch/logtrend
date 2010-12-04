@@ -15,8 +15,8 @@ LogTrend.start('test.log', "/tmp/rrd", "/tmp/graphs") do |l|
   l.add_trend(:kod) {|line| line.match /kilnhg.com/}
   
   l.add_graph(:requests_per_minute) do |g|
-    g.add_line :fbod, "#0066cc"
-    g.add_line :kod, "#993333"
+    g.add_point :area, :fbod, "#0066cc"
+    g.add_point :area, :kod, "#993333"
   end
   
 end
