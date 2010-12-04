@@ -38,7 +38,7 @@ class LogTrend
   def build_graph(graphs_dir, rrd_dir, name, data)
     RRD.graph File.join(graphs_dir,"#{name}.png"), :title => name, :width => 800, :height => 250, :color => ["FONT#000000", "BACK#FFFFFF"] do
       data.each do |name, color|
-        area File.join(rrd_dir,"#{name}.rrd"), "#{name}_count" => :average, :color => color, :label => name.to_s
+        line File.join(rrd_dir,"#{name}.rrd"), "#{name}_count" => :average, :color => color, :label => name.to_s
       end
     end
   end
