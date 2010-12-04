@@ -2,7 +2,7 @@
 
 require 'logtrend'
 
-LogTrend.new.start('test.log') do |l|
+LogTrend.start('test.log') do |l|
   l.trends = {
     :total => /.*/,
     :fbod => /fogbugz.com/,

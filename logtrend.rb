@@ -40,11 +40,8 @@ class LogTrend
     end
   end
   
-  def start(logfile, &block)
-    begin 
-      
-      yield self if block
-      
+  def start(logfile)
+    begin      
       counters = reset_counters
       
       EventMachine.run do       
@@ -64,5 +61,11 @@ class LogTrend
     rescue Interrupt
       # hit ctrl-c
     end    
+  end
+  
+  def self.start(logfile, &block)
+    l = LogTrend.new
+    yield l if block
+    l.start(logfile)
   end
 end
