@@ -40,8 +40,11 @@ class LogTrend
     end
   end
   
-  def start(logfile)
+  def start(logfile, &block)
     begin 
+      
+      yield self if block
+      
       counters = reset_counters
       
       EventMachine.run do       

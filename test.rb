@@ -2,18 +2,17 @@
 
 require 'logtrend'
 
-l = LogTrend.new
-l.trends = {
-  :total => /.*/,
-  :fbod => /fogbugz.com/,
-  :kod => /kilnhg.com/
-}
-
-l.graphs = {
-  "requests_per_minute" => {
-    :total => '#0066cc',
-    :kod => '#993333'
+LogTrend.new.start('test.log') do |l|
+  l.trends = {
+    :total => /.*/,
+    :fbod => /fogbugz.com/,
+    :kod => /kilnhg.com/
   }
-}
-
-l.start('test.log')
+  
+  l.graphs = {
+    "requests_per_minute" => {
+      :total => '#0066cc',
+      :kod => '#993333'
+    }
+  }
+end
