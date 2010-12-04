@@ -46,7 +46,7 @@ class LogTrend
       
       EventMachine.run do       
         EventMachine::add_periodic_timer(60) do
-          puts counters.inspect
+          puts "#{Time.now} #{counters.inspect}"
           counters.each {|name, value| update_rrd(name, value)}            
           graphs.each {|name, data| build_graph(name, data)}
           counters = reset_counters
