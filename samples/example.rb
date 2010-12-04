@@ -11,8 +11,8 @@ Dir.mkdir('/tmp/graphs') if !File.exists?('/tmp/graphs')
 LogTrend.start('test.log', "/tmp/rrd", "/tmp/graphs") do |l|
   l.trends = {
     :total => /.*/,
-    :fbod => /fogbugz\.com/,
-    :kod => /kilnhg\.com/
+    :fbod => /fogbugz.com/,
+    :kod => /kilnhg.com/
   }
   
   l.graphs = {
