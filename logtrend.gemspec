@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "logtrend is an HTTP log parser built on top of event machine, generating rrd graphs of usage matching patterns you define."
   spec.add_dependency("eventmachine")
   spec.add_dependency("eventmachine-tail")
+  spec.add_dependency("rrd-ffi)
   spec.files = files
   spec.require_paths << "lib"
 
