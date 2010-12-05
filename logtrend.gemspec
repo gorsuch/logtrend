@@ -13,7 +13,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency("eventmachine")
   spec.add_dependency("eventmachine-tail")
   spec.add_dependency("rrd-ffi")
-  spec.add_dependency("erb")
   spec.files = files
   spec.require_paths << "lib"
 
