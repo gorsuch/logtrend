@@ -7,7 +7,10 @@ require 'erb'
 
 module LogTrend
   class Base
-    attr_accessor :graphs_dir, :rrd_dir
+    # This sets the directory where graphs should be stored.  Default is '.'
+    attr_accessor :graphs_dir
+    # This sets the directory where your RRD files will rest.  Default is '.'
+    attr_accessor :rrd_dir
   
     def initialize
       @graphs_dir = '.'
@@ -43,6 +46,7 @@ module LogTrend
       @graphs << graph
     end
   
+    # This is the preferred entry point.
     def self.run(logfile, &block)
       throw "D'oh! No block." unless block_given?
       l = Base.new
