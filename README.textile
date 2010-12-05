@@ -20,8 +20,7 @@ h2. Use it.
 
 Here is an example:
 
-<code>
-<pre>
+bc. 
 require 'rubygems'
 require 'logtrend'	
 
@@ -60,8 +59,6 @@ LogTrend::Base.run("/var/log/httpd-acccess.log") do |lt|
   end
   
 end
-</pre>
-</code>
 
 h2. Contribute!
 
