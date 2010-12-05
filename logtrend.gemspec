@@ -7,12 +7,13 @@ Gem::Specification.new do |spec|
 
   rev = Time.now.strftime("%Y%m%d%H%M%S")
   spec.name = "logtrend"
-  spec.version = "0.7.#{rev}"
+  spec.version = "0.8.#{rev}"
   spec.summary = "logtrend - an event-driven http log parser that generates rrd graphs"
   spec.description = "logtrend is an HTTP log parser built on top of event machine, generating rrd graphs of usage matching patterns you define."
   spec.add_dependency("eventmachine")
   spec.add_dependency("eventmachine-tail")
   spec.add_dependency("rrd-ffi")
+  spec.add_dependency("erb")
   spec.files = files
   spec.require_paths << "lib"
 

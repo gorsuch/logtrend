@@ -3,6 +3,7 @@ require 'eventmachine'
 require 'eventmachine-tail'
 require 'rrd'
 require 'logger'
+require 'erb'
 
 module LogTrend
   class Base
@@ -15,6 +16,19 @@ module LogTrend
       @graphs = []
       @logger = Logger.new(STDERR)
       @logger.level = ($DEBUG and Logger::DEBUG or Logger::WARN)
+      
+      @template = ERB.new <<-EOF
+      <html>
+        <head>
+          <title>logtrend</title>
+        </head>
+        <body>
+          <% @graphs.each do |graph| %>
+            <img src='<%=graph.name%>.png' />
+          <% end %>
+        </body>
+      </html>
+      EOF
     end
 
     def add_trend(name, &block)
@@ -44,6 +58,7 @@ module LogTrend
           @logger.debug "#{Time.now} #{counters.inspect}"
           counters.each {|name, value| update_rrd(name, value)}            
           @graphs.each {|graph| build_graph(graph)}
+          build_page
           counters = reset_counters
         end
       
@@ -90,6 +105,14 @@ module LogTrend
         end
       end
     end
+    
+    def build_page
+      file_name = File.join(@graphs_dir,'index.html')
+      File.open(file_name, "w") do |f|
+        f << @template.result(binding)
+      end
+    end
+    
   end
 
   class Graph
