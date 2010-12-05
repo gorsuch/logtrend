@@ -20,7 +20,7 @@ h2. Use it.
 
 Here is an example:
 
-bc. 
+bc.. 
 require 'rubygems'
 require 'logtrend'	
 
