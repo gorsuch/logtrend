@@ -15,11 +15,14 @@
 # take a look at the graphs to see if anything suspicious has occurred 
 # over the last few minutes.
 
-require 'rubygems'
+$:.unshift "#{File.dirname(__FILE__)}/../lib"
 require 'logtrend'
+require 'fileutils'
+
+FileUtils.touch('test.log')
 
 # Invoke this to begin trending your data...
-LogTrend::Base.run("/var/log/httpd-access") do |lt|
+LogTrend::Base.run("test.log") do |lt|
   
   # Set new locations for our graphs and rrds.  defaults to '.'
   lt.rrd_dir = '/tmp/rrd'
