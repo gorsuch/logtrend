@@ -1,0 +1,74 @@
+h1. LogTrend
+
+LogTrend is an event-driven log parser that will generate RRD files and graphs of whatever you are interested in trending.
+
+h2. Why?
+
+You have lots of logs.  You want to get an idea as to how often certain events occur.
+
+Maybe you are curious about certain HTTP transactions.  How about failed logins?  Any interest in how many customers are hammering your API?
+
+Grepping through logs files sucks, especially when the sky seems to be falling.  
+
+LogTrend gives you a simple way to describe the events that you want to trend and takes care of rendering that data for you minute-by-minute.
+
+h2. Get it.
+
+<pre>sudo gem install logtrend</pre>
+
+h2. Use it.
+
+Here is an example:
+
+<code>
+<pre>
+require 'rubygems'
+require 'logtrend'	
+
+# Invoke this to begin trending your data...
+LogTrend::Base.run("/var/log/httpd-acccess.log") do |lt|
+  
+  # Set new locations for our graphs and rrds.  defaults to '.'
+  lt.rrd_dir = '/tmp/rrd'
+  lt.graphs_dir = '/tmp/graphs'
+  
+  # Add some things to trend.  An RRD is built for each one of these items.
+  # Each time we read a line from the log file, we pass it to the block.
+  # If your block returns true, we count that as a hit.
+  # Every minute, the RRD is updated with the hits for the previous period.
+  lt.add_trend(:total) {|line| line.match /.*/}
+  lt.add_trend(:fbod) {|line| line.match /fogbugz.com/}
+  lt.add_trend(:kod) {|line| line.match /kilnhg.com/}
+  lt.add_trend(:long) do |line|
+    # Let us pretend that request time is in seconds
+    # and is the last item on the log line
+    request_time = line.split.last.to_i
+    request_time > 10
+  end
+  
+  # Build a graph displaying some of the items we are trending
+  # Label it as :requests_per_minute
+  lt.add_graph(:requests_per_minute) do |g|
+    g.add_point :area, :total, "#333333"
+    g.add_point :line, :fbod, "#0066cc"
+    g.add_point :line, :kod, "#993333"
+  end
+
+  # Build a second graph for our long running queries
+  lt.add_graph(:long_requests) do |g|
+    g.add_point :area, :long, '#000000'
+  end
+  
+end
+</pre>
+</code>
+
+h2. Contribute!
+
+This is a young tool and probably full of bugs.  If you find any, fork, fix, and submit a pull request.  If you'd like to extend functionality, go for it!
+
+h2. Who Made this Possible
+
+This tool is built upon "EventMachine":http://rubyeventmachine.com/, "rrd-ffi":https://github.com/morellon/rrd-ffi, and "eventmachine-tail":https://github.com/jordansissel/eventmachine-tail.  
+
+These are amazing libraries, and they do all of the heavy lifting for LogTrend.  If you take a peak at the source, you'll see that.  Many thanks!
