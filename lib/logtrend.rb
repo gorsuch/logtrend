@@ -7,9 +7,9 @@ require 'erb'
 
 module LogTrend
   class Base
-    # This sets the directory where graphs should be stored.  Default is '.'
+    # This sets the directory where graphs should be stored.
     attr_accessor :graphs_dir
-    # This sets the directory where your RRD files will rest.  Default is '.'
+    # This sets the directory where your RRD files will rest.
     attr_accessor :rrd_dir
   
     def initialize
