@@ -1,6 +1,6 @@
 h1. LogTrend
 
-LogTrend is an event-driven log parser that will generate RRD files and graphs of whatever you are interested in trending.
+LogTrend is an event-driven log parser that will watch your logs in realtime and generate RRD files and graphs of whatever you are interested in trending.
 
 h2. Why?
 
