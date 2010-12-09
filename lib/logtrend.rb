@@ -89,7 +89,7 @@ module LogTrend
     def update_rrd(name, value)
       file_name = File.join(@rrd_dir,"#{name}.rrd")
       rrd = RRD::Base.new(file_name)
-      if !File.exists?(file_name)
+      if !File.file?(file_name)
         rrd.create :start => Time.now - 10.seconds, :step => 1.minutes do
           datasource "#{name}_count", :type => :gauge, :heartbeat => 5.minutes, :min => 0, :max => :unlimited
           archive :average, :every => 5.minutes, :during => 1.year
