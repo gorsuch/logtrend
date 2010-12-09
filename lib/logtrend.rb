@@ -13,11 +13,13 @@ module LogTrend
     # This sets the directory where your RRD files will rest.
     attr_accessor :rrd_dir
 
-    # This sets the logger to use. Must be something like a Logger object.
+    # This sets the logger to use. Must be something that behaves like a Logger object.
     attr_accessor :logger
 
     # This sets the HTML file template for the generated index.html file.
     # The String here will pass through ERB, with self being set as the binding.
+    #
+    # The default generates a simple HTML file that loads one IMG tag per graph.
     attr_accessor :template
 
     # Defines the amount of time between each updates, given in seconds. Default value is 60 seconds.
