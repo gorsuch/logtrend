@@ -5,6 +5,9 @@ require 'rrd'
 require 'logger'
 require 'erb'
 
+# A Ruby module that uses RRD (http://www.mrtg.org/rrdtool/) to generate graphs for trending data from log files.
+#
+# logtrend tails a log file and matches lines one by one, sending matched counters to RRD as appropriate.
 module LogTrend
   class Base
     # This sets the directory where graphs should be stored.
