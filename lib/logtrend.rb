@@ -12,27 +12,39 @@ module LogTrend
 
     # This sets the directory where your RRD files will rest.
     attr_accessor :rrd_dir
-  
-    def initialize
-      @graphs_dir = '.'
-      @rrd_dir = '.'
-      @trends = {}
-      @graphs = []
-      @logger = Logger.new(STDERR)
-      @logger.level = ($DEBUG and Logger::DEBUG or Logger::WARN)
-      
-      @template = ERB.new <<-EOF
-      <html>
-        <head>
-          <title>logtrend</title>
-        </head>
-        <body>
-          <% @graphs.each do |graph| %>
-            <img src='<%=graph.name%>.png' />
-          <% end %>
-        </body>
-      </html>
-      EOF
+
+    # This sets the logger to use. Must be something like a Logger object.
+    attr_accessor :logger
+
+    # This sets the HTML file template for the generated index.html file.
+    # The String here will pass through ERB, with self being set as the binding.
+    attr_accessor :template
+
+    # Defines the amount of time between each updates, given in seconds. Default value is 60 seconds.
+    #
+    # From the rrdcreate(2) manual page:
+    #
+    #     Specifies the base interval in seconds with which data will be fed into the RRD.
+    #
+    #
+    # @see http://www.mrtg.org/rrdtool/doc/rrdcreate.en.html
+    attr_accessor :step
+
+    # Defines the amount of time between updates that will mark a value unknown.
+    #
+    # From the rrdcreate(2) manual page:
+    #
+    #     heartbeat defines the maximum number of seconds that may pass between two updates of this data source before the value of the data source is assumed to be *UNKNOWN*.
+    #
+    # @see http://www.mrtg.org/rrdtool/doc/rrdcreate.en.html
+    attr_accessor :heartbeat
+
+    def initialize(options={})
+      set_defaults
+
+      options.each do |key, val|
+        send("#{key}=", val)
+      end
     end
 
     def add_trend(name, &block)
@@ -48,9 +60,9 @@ module LogTrend
     end
     #
     # This is the preferred entry point.
-    def self.run(logfile, &block)
+    def self.run(logfile, options={}, &block)
       throw "D'oh! No block." unless block_given?
-      l = Base.new
+      l = Base.new(options)
       yield l
       l.run logfile
     end
@@ -59,7 +71,7 @@ module LogTrend
       counters = reset_counters
 
       EventMachine.run do
-        EventMachine::add_periodic_timer(1.minute) do
+        EventMachine::add_periodic_timer(step) do
           @logger.debug "#{Time.now} #{counters.inspect}"
           counters.each {|name, value| update_rrd(name, value)}
           @graphs.each {|graph| build_graph(graph)}
@@ -90,8 +102,8 @@ module LogTrend
       file_name = File.join(@rrd_dir,"#{name}.rrd")
       rrd = RRD::Base.new(file_name)
       if !File.file?(file_name)
-        rrd.create :start => Time.now - 10.seconds, :step => 1.minutes do
-          datasource "#{name}_count", :type => :gauge, :heartbeat => 5.minutes, :min => 0, :max => :unlimited
+        rrd.create :start => Time.now - 10.seconds, :step => step do
+          datasource "#{name}_count", :type => :gauge, :heartbeat => heartbeat, :min => 0, :max => :unlimited
           archive :average, :every => 5.minutes, :during => 1.year
         end
       end
@@ -117,7 +129,32 @@ module LogTrend
         f << @template.result(binding)
       end
     end
-    
+
+    def set_defaults
+      @graphs_dir = '.'
+      @rrd_dir = '.'
+      @trends = {}
+      @graphs = []
+      @logger = Logger.new(STDERR)
+      @logger.level = ($DEBUG and Logger::DEBUG or Logger::WARN)
+
+      @step = 1.minute
+      @heartbeat = 5.minutes
+
+      @template = ERB.new <<-EOF
+      <html>
+        <head>
+          <title>logtrend</title>
+        </head>
+        <body>
+          <% @graphs.each do |graph| %>
+            <img src='<%=graph.name%>.png' />
+          <% end %>
+        </body>
+      </html>
+      EOF
+    end
+    private :set_defaults
   end
 
   class Graph
