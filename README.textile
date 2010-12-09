@@ -20,17 +20,15 @@ h2. Use it.
 
 Here is an example:
 
-pre.. 
-require 'rubygems'
-require 'logtrend'	
+<pre><code>require 'logtrend'
 
 # Invoke this to begin trending your data...
 LogTrend::Base.run("/var/log/httpd-acccess.log") do |lt|
-  
+
   # Set new locations for our graphs and rrds.  defaults to '.'
   lt.rrd_dir = '/tmp/rrd'
   lt.graphs_dir = '/tmp/graphs'
-  
+
   # Add some things to trend.  An RRD is built for each one of these items.
   # Each time we read a line from the log file, we pass it to the block.
   # If your block returns true, we count that as a hit.
@@ -44,7 +42,7 @@ LogTrend::Base.run("/var/log/httpd-acccess.log") do |lt|
     request_time = line.split.last.to_i
     request_time > 10
   end
-  
+
   # Build a graph displaying some of the items we are trending
   # Label it as :requests_per_minute
   lt.add_graph(:requests_per_minute) do |g|
@@ -57,8 +55,9 @@ LogTrend::Base.run("/var/log/httpd-acccess.log") do |lt|
   lt.add_graph(:long_requests) do |g|
     g.add_point :area, :long, '#000000'
   end
-  
+
 end
+</code></pre>
 
 h2. Contribute!
 
