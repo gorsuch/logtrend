@@ -9,6 +9,7 @@ module LogTrend
   class Base
     # This sets the directory where graphs should be stored.
     attr_accessor :graphs_dir
+
     # This sets the directory where your RRD files will rest.
     attr_accessor :rrd_dir
   
@@ -38,14 +39,14 @@ module LogTrend
       throw "D'oh! No block." unless block_given?
       @trends[name] = block
     end
-  
+
     def add_graph(name, &block)
       throw "D'oh! No block." unless block_given?
       graph = Graph.new(name)
       yield graph
       @graphs << graph
     end
-  
+    #
     # This is the preferred entry point.
     def self.run(logfile, &block)
       throw "D'oh! No block." unless block_given?
@@ -56,16 +57,16 @@ module LogTrend
 
     def run(logfile)
       counters = reset_counters
-    
-      EventMachine.run do       
+
+      EventMachine.run do
         EventMachine::add_periodic_timer(1.minute) do
           @logger.debug "#{Time.now} #{counters.inspect}"
-          counters.each {|name, value| update_rrd(name, value)}            
+          counters.each {|name, value| update_rrd(name, value)}
           @graphs.each {|graph| build_graph(graph)}
           build_page
           counters = reset_counters
         end
-      
+
         EventMachine::file_tail(logfile) do |filetail, line|
           @trends.each do |name, block|
             counters[name] += 1 if block.call(line)
@@ -76,7 +77,7 @@ module LogTrend
     end
 
     private
-    
+
     def reset_counters
       counters = {}
       @trends.keys.each do |k|
@@ -84,7 +85,7 @@ module LogTrend
       end
       counters
     end
-  
+
     def update_rrd(name, value)
       file_name = File.join(@rrd_dir,"#{name}.rrd")
       rrd = RRD::Base.new(file_name)
@@ -96,7 +97,7 @@ module LogTrend
       end
       rrd.update Time.now, value
     end
-  
+
     def build_graph(graph)
       rrd_dir = @rrd_dir
       RRD.graph File.join(@graphs_dir,"#{graph.name}.png"), :title => graph.name, :width => 800, :height => 250, :color => ["FONT#000000", "BACK#FFFFFF"] do
@@ -104,12 +105,12 @@ module LogTrend
           if point.style == :line
             line File.join(rrd_dir,"#{point.name}.rrd"), "#{point.name}_count" => :average, :color => point.color, :label => point.name.to_s
           elsif point.style == :area
-            area File.join(rrd_dir,"#{point.name}.rrd"), "#{point.name}_count" => :average, :color => point.color, :label => point.name.to_s         
+            area File.join(rrd_dir,"#{point.name}.rrd"), "#{point.name}_count" => :average, :color => point.color, :label => point.name.to_s
           end
         end
       end
     end
-    
+
     def build_page
       file_name = File.join(@graphs_dir,'index.html')
       File.open(file_name, "w") do |f|
@@ -120,17 +121,17 @@ module LogTrend
   end
 
   class Graph
-  
+
     attr_reader :points
     attr_reader :name
-  
+
     def initialize(name)
       @name = name
       @points = []
     end
-  
+
     def add_point(style,name,color)
-      @points << GraphPoint.new(style, name, color)    
+      @points << GraphPoint.new(style, name, color)
     end
   end
 
