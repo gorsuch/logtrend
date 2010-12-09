@@ -14,7 +14,7 @@ LogTrend gives you a simple way to describe the events that you want to trend an
 
 h2. Get it.
 
-<pre>sudo gem install logtrend</pre>
+<pre>gem install logtrend</pre>
 
 h2. Use it.
 
