@@ -48,12 +48,12 @@ module LogTrend
     end
 
     def add_trend(name, &block)
-      throw "D'oh! No block." unless block_given?
+      raise ArgumentError, "D'oh! No block." unless block_given?
       @trends[name] = block
     end
 
     def add_graph(name, &block)
-      throw "D'oh! No block." unless block_given?
+      raise ArgumentError, "D'oh! No block." unless block_given?
       graph = Graph.new(name)
       yield graph
       @graphs << graph
