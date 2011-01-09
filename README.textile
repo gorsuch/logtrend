@@ -67,4 +67,6 @@ h2. Who Made this Possible
 
 This tool is built upon "EventMachine":http://rubyeventmachine.com/, "rrd-ffi":https://github.com/morellon/rrd-ffi, and "eventmachine-tail":https://github.com/jordansissel/eventmachine-tail.  
 
-These are amazing libraries, and they do all of the heavy lifting for LogTrend.  If you take a peak at the source, you'll see that.  Many thanks!
+These are amazing libraries, and they do all of the heavy lifting for LogTrend.  If you take a peak at the source, you'll see that.  
+
+Thanks to francois for patches and testing.
